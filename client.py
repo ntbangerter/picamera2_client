@@ -33,7 +33,7 @@ def mjpeg_stream_watcher(
 ):
     stream = cv2.VideoCapture(url)
 
-    while ( stream.isOpened() ):
+    while (stream.isOpened()):
         ret, img = stream.read()
         if ret: # ret == True if stream.read() was successful
 
@@ -64,23 +64,27 @@ def dummy(img):
     return img
 
 
-mjpeg_stream_watcher(
-    fn=dummy,
-    imshow=True,
-)
-
-
-
-# EXAMPLE FN DOING IMAGENET CLASSIFICATION WITH VIT
-
 # import transformers
 
-# processor = ViTImageProcessor.from_pretrained('google/vit-base-patch16-224', device_map='cuda')
-# model = ViTForImageClassification.from_pretrained('google/vit-base-patch16-224', device_map='cuda')
+# def run_image_classification():
+#     processor = ViTImageProcessor.from_pretrained('google/vit-base-patch16-224', device_map='cuda')
+#     model = ViTForImageClassification.from_pretrained('google/vit-base-patch16-224', device_map='cuda')
 
-# def image_classification(img):
-#     inputs = processor(images=img, return_tensors='pt').to('cuda')
-#     outputs = model(**inputs)
-#     logits = outputs.logits
-#     predicted_class_idx = logits.argmax(-1).item()
-#     print("Predicted class:", model.config.id2label[predicted_class_idx])
+#     def image_classification(img):
+#         inputs = processor(images=img, return_tensors='pt').to('cuda')
+#         outputs = model(**inputs)
+#         logits = outputs.logits
+#         predicted_class_idx = logits.argmax(-1).item()
+#         print("Predicted class:", model.config.id2label[predicted_class_idx])
+
+#     mjpeg_stream_watcher(
+#         fn=image_classification,
+#         imshow=True,
+#     )
+    
+
+if __name__ == "__main__":
+    mjpeg_stream_watcher(
+        fn=dummy,
+        imshow=True,
+    )
