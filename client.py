@@ -1,8 +1,13 @@
-import requests
-import numpy as np
+import cv2
 import io
+import numpy as np
+import requests
 
-def fetch_numpy_array(url="http://192.168.0.228:8000/capture_array"):
+
+CAMERA_URL = "http://192.168.0.228:8000"
+
+
+def fetch_numpy_array(url=f"{CAMERA_URL}/capture_array"):
     try:
         response = requests.get(url)
         response.raise_for_status()  # Check for HTTP errors
@@ -19,3 +24,63 @@ def fetch_numpy_array(url="http://192.168.0.228:8000/capture_array"):
     except Exception as e:
         print(f"Error processing the array: {e}")
         return None
+
+
+def mjpeg_stream_watcher(
+    fn,
+    url=f"{CAMERA_URL}/video_feed",
+    imshow=False,
+):
+    stream = cv2.VideoCapture(url)
+
+    while ( stream.isOpened() ):
+        ret, img = stream.read()
+        if ret: # ret == True if stream.read() was successful
+
+            if not imshow:
+                # process every frame
+                img = fn(img)
+            else:
+                # display preview
+                cv2.imshow('preview', img)
+
+                # process frame
+                if cv2.waitKey(1) == ord('p'):
+                    print("Processing frame...")
+                    fn(img)
+
+                # exit loop
+                if cv2.waitKey(1) == ord('q'):
+                    print("Exiting...")
+                    break
+
+    # cleanup cv2
+    stream.release()
+    cv2.destroyAllWindows()
+
+
+def dummy(img):
+    print(f"Processed image {img.shape}")
+    return img
+
+
+mjpeg_stream_watcher(
+    fn=dummy,
+    imshow=True,
+)
+
+
+
+# EXAMPLE FN DOING IMAGENET CLASSIFICATION WITH VIT
+
+# import transformers
+
+# processor = ViTImageProcessor.from_pretrained('google/vit-base-patch16-224', device_map='cuda')
+# model = ViTForImageClassification.from_pretrained('google/vit-base-patch16-224', device_map='cuda')
+
+# def image_classification(img):
+#     inputs = processor(images=img, return_tensors='pt').to('cuda')
+#     outputs = model(**inputs)
+#     logits = outputs.logits
+#     predicted_class_idx = logits.argmax(-1).item()
+#     print("Predicted class:", model.config.id2label[predicted_class_idx])
