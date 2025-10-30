@@ -15,8 +15,3 @@ where = ["src"]
 
 [tool.uv]
 package = true
-
-[tool.uv.workspace]
-members = [
-    "picamera2_client",
-]
