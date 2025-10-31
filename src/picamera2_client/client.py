@@ -47,7 +47,10 @@ def mjpeg_stream_watcher(
                 # process frame
                 if cv2.waitKey(1) == ord('p'):
                     print("Processing frame...")
-                    fn(img)
+                    try:
+                        fn(img)
+                    except:
+                        break
 
                 # exit loop
                 if cv2.waitKey(1) == ord('q'):
