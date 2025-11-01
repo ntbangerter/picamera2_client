@@ -7,9 +7,15 @@ import requests
 CAMERA_URL = "http://192.168.0.228:8000"
 
 
-def fetch_numpy_array(url=f"{CAMERA_URL}/capture_array"):
+def fetch_numpy_array(
+    url=f"{CAMERA_URL}/capture_array",
+    high_res=False,
+):
     try:
-        response = requests.get(url)
+        response = requests.get(
+            url,
+            params={"high_res": high_res},
+        )
         response.raise_for_status()  # Check for HTTP errors
 
         # Assuming the response contains a serialized NumPy array (e.g., in .npy format)
@@ -23,6 +29,33 @@ def fetch_numpy_array(url=f"{CAMERA_URL}/capture_array"):
         return None
     except Exception as e:
         print(f"Error processing the array: {e}")
+        return None
+
+
+def fetch_jpeg(
+    url=f"{CAMERA_URL}/capture_jpeg",
+    high_res=False,
+):
+    """
+    Fetch a JPEG image from the camera service and return it as an OpenCV BGR array.
+    """
+    try:
+        response = requests.get(
+            url,
+            params={"high_res": high_res},
+        )
+        response.raise_for_status()  # HTTP errors
+
+        # Convert raw JPEG bytes into a NumPy array, then decode into an image
+        img_buf = np.frombuffer(response.content, dtype=np.uint8)
+        img = cv2.imdecode(img_buf, cv2.IMREAD_COLOR)
+        return img
+
+    except requests.exceptions.RequestException as e:
+        print(f"Request failed: {e}")
+        return None
+    except Exception as e:
+        print(f"Error decoding JPEG: {e}")
         return None
 
 
